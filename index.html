@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <style>
+        #container {
+            min-width: 635px;
+            width: 60%;
+            min-height: 335px;
+            border: 1px solid darkred;
+            cursor: url("img/mata-moscas2.png"), auto;
+            display: inline-block;
+            text-align: center;
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            background-color: white;
+        }
+
+        body {
+            background-color: black;
+        }
+
+        #info {
+            display: inline-block;
+            border: 1px solid darkred;
+            padding: 5px 40px;
+            background-color: white;
+            text-align: center;
+        }
+
+        #homeImg {
+            height: 206px;
+            display: block;
+            margin: auto;
+        }
+
+        #start {
+            cursor: url("img/mata-moscas2.png"), auto;
+        }
+
+        #containerMain {
+            display: flex;
+            justify-content: center;
+            margin: 10% 0;
+            height: 450px;
+        }
+
+        #info div {
+            border: 1px solid;
+            margin: 5px;
+            border-radius: 15px;
+        }
+
+        #info p {
+            margin: 10px;
+        }
+
+        #reset {
+            padding: 0 17px 0 0;
+        }
+
+        #resetImg {
+            width: 38px;
+            vertical-align: middle;
+            animation: loading 2s linear infinite;
+        }
+
+        @keyframes loading {
+            0% {
+                transform: rotate(360deg);
+            }
+
+            100% {
+                transform: rotate(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="containerMain">
+        <div id="container">
+            <p id="welcome" style="font-size: 25px;">Welcome to Fly <br><span style="color: red;">Killer</span></p>
+            <input class="userName" placeholder="User name">
+            <button id="start" onclick='ValidStart(this)'>Start</button>
+            <img id="homeImg" src="img/fundo1.png">
+        </div>
+        <div id="info">
+            <div id="divRecord">
+                <p>Records</p>
+                <p id="records">Level: <span>0</span> Points: <span>0</span></p>
+            </div>
+            <div id="divTimer">
+                <p>Time</p>
+                <p><span id="timerA">01</span><span>:</span><span id="timerB">00</span></p>
+            </div>
+            <div id="divCont">
+                <p>Points</p>
+                <p id="cont">0</p>
+            </div>
+            <div id="divLevel">
+                <p>Level</p>
+                <p id="userLevel">0</p>
+            </div>
+            <button id="reset" onclick="showStart(),resetElements()"><img id="resetImg"
+                    src="img/reset.jpg">Reset</button>
+        </div>
+    </div>
+</body>
+<footer>
+    <script>
+        mosquitoPosi = 0;
+        countCreate = 0;
+        createFly = (a, b) => {
+            fly = document.createElement('img');
+            countCreate++;
+            if (countCreate == 10) {
+                fly.setAttribute('src', 'img/mosquito-especial1.png');
+                fly.setAttribute('class', 'yellow');
+                fly.setAttribute('onclick', 'addSpots1(),removeFly(this)');
+            } else if (countCreate == 20) {
+                fly.setAttribute('src', 'img/mosquito-especial2.png');
+                fly.setAttribute('class', 'blue');
+                fly.setAttribute('onclick', 'addSpots2(),removeFly(this)');
+                countCreate = 0;
+            } else if (mosquitoPosi % 2 == 0) {
+                fly.setAttribute('src', 'img/mosquito-bravo.png');
+                fly.setAttribute('onclick', 'removeFly(this)');
+            } else {
+                fly.setAttribute('src', 'img/mosquito-bravo1.png');
+                fly.setAttribute('onclick', 'removeFly(this)');
+            }
+            fly.setAttribute('id', 'fly');
+            fly.setAttribute('style', 'height: 55px; position: absolute; left: ' + a + 'px; top: ' + b + 'px;');
+            document.querySelector('#container').append(fly);
+            mosquitoPosi++;
+        }
+        ValidStart = (e) => {
+            if (document.querySelector('.userName').value != "") {
+                run(active = true, paused = false), timer(true), hidenStart(e), backgroundImplement();
+                localStorage.setItem('name', document.querySelector('.userName').value);
+            }
+        }
+        removeFlyAll = () => {
+            for (e of document.querySelectorAll('#fly')) {
+                e.remove();
+            }
+        }
+        countFly = () => {
+            return document.querySelectorAll('#fly').length;
+        }
+        resetElements = () => {
+            paused = true;
+            active = false;
+            removeFlyAll();
+            document.querySelector('#timerA').textContent = '01';
+            document.querySelector('#timerB').textContent = '00';
+            timeRun = 500;
+            timerContrl = 2000;
+            cont = 0;
+            spots = 0;
+            levelCount = 1;
+        }
+        gameOver = () => {
+            paused = true;
+            active = false;
+            document.querySelector('#container').style.backgroundImage = "url('img/game-over-personalizado.png')";
+            removeFlyAll();
+            document.querySelector('#timerA').textContent = '01';
+            document.querySelector('#timerB').textContent = '00';
+            timeRun = 500;
+            timerContrl = 2000;
+            cont = 0;
+            saveUserRecords();
+            upRecords(spots, levelCount);
+            spots = 0;
+            levelCount = 1;
+            document.querySelector('#userLevel').innerText = levelCount;
+        }
+        backgroundImplementCont = 0;
+        backgroundImplement = () => {
+            backgroundImplementCont++;
+            if (backgroundImplementCont == 6) {
+                backgroundImplementCont = 1;
+            }
+            document.querySelector('#container').style.backgroundImage = "url(img/paisagem" + backgroundImplementCont + ".png)";
+        }
+        positionTop = () => {
+            return Math.floor(Math.random() * (parseInt(document.querySelector('#container').getBoundingClientRect().height.toFixed(0)) - 50)) + parseInt(document.querySelector('#container').getBoundingClientRect().top.toFixed(0));
+        }
+        positionLeft = () => {
+            return Math.floor(Math.random() * (parseInt(document.querySelector('#container').getBoundingClientRect().width.toFixed(0)) - 50)) + parseInt(document.querySelector('#container').getBoundingClientRect().left.toFixed(0));
+        }
+        upTimer = () => {
+            e = () => { return parseInt(document.querySelector('#timerB').textContent) };
+
+            if (e() + 1 > 59) {
+                document.querySelector('#timerA').textContent = "0" + (parseInt(document.querySelector('#timerA').textContent) + 1);
+                document.querySelector('#timerB').textContent = '00';
+            } else {
+                if (e() < 9) {
+                    document.querySelector('#timerB').textContent = `0${e() + 1}`;
+                } else {
+                    document.querySelector('#timerB').textContent = e() + 1;
+                }
+            }
+        }
+        dowTimer = (e) => {
+            console.log('e is ' + e)
+            a = () => { return parseInt(document.querySelector('#timerA').textContent) };
+            b = () => { return parseInt(document.querySelector('#timerB').textContent) };
+            if (b() - e > 0) {
+                result = b() - e;
+                if (result < 10) {
+                    document.querySelector('#timerB').textContent = `0${result}`;
+                } else {
+                    document.querySelector('#timerB').textContent = result;
+                }
+            } else if (b() - e < 0 && a() == 0) {
+                gameOver();
+            } else if (b() - e < 0 && a() > 0) {
+                document.querySelector('#timerA').textContent = parseInt(document.querySelector('#timerA').textContent) - 1;
+                result = b() - e;
+                document.querySelector('#timerB').textContent = result + 60;
+            }
+
+        }
+        cont = 0;
+        spots = 0;
+        removeFly = (e) => {
+            if (e.classList.value == '') {
+                e.setAttribute('src', 'img/gosma.png');
+            } else if (e.classList.value == 'yellow') {
+                e.setAttribute('src', 'img/gosma-amarelo.png');
+            } else {
+                e.setAttribute('src', 'img/gosma-azul.png');
+            }
+            setTimeout(() => {
+                e.remove();
+            }, 200);
+            cont++;
+            spots++;
+            ValidLevelUp();
+            document.querySelector('#cont').textContent = spots;
+            upTimer();
+        }
+        addSpots1 = () => {
+            spots = spots + (1 * levelCount);
+        }
+        addSpots2 = () => {
+            spots = spots + (2 * levelCount);
+        }
+        timeRun = 500;
+        run = () => {
+            if (active == true) {
+                setTimeout(() => {
+                    //validate game over
+                    if (active == true && paused == false && countFly() < 50) {
+                        a = positionLeft();
+                        b = positionTop();
+                        createFly(a, b);
+                    } else if (countFly() == 50) {
+                        gameOver();
+                    }
+                    setTimeout(() => {
+                        run();
+                    }, timeRun);
+                }, timeRun);
+            }
+        }
+        paused = false;
+        timerContrl = 2000;
+
+        timer = (e) => {
+            if (paused == false || e == true) {
+                setTimeout(() => {
+                    a = () => { return parseInt(document.querySelector('#timerA').textContent) };
+                    b = () => { return parseInt(document.querySelector('#timerB').textContent) };
+                    if (a() != 00 && b() == 00 && document.querySelector('#container').style.backgroundImage != 'url("img/game-over-personalizado.png")') {
+                        document.querySelector('#timerA').textContent = '00';
+                        document.querySelector('#timerB').textContent = '59';
+                        timer();
+                    } else {
+                        if (b() <= 10 && b() != 00) {
+                            document.querySelector('#timerB').textContent = `0${b() - 1}`;
+                            timer();
+                        } else if (b() != 00) {
+                            document.querySelector('#timerB').textContent = b() - 1;
+                            timer();
+                        }
+                    }
+                    if (b() == 60) {
+                        document.querySelector('#timerA').textContent = '01';
+                        document.querySelector('#timerB').textContent = '00';
+                    }
+
+                    if (document.querySelectorAll('#divTimer p')[1].textContent == '00:00') {
+                        gameOver();
+                    }
+                }, timerContrl);
+            }
+        }
+
+        hidenStart = (e) => {
+            e.style.opacity = "0";
+            document.querySelector('#welcome').style.opacity = "0";
+            document.querySelector('#homeImg').style.opacity = "0";
+            document.querySelector('.userName').style.opacity = "0";
+        }
+        showStart = () => {
+            document.querySelector('#start').style.opacity = "1";
+            document.querySelector('#welcome').style.opacity = "1";
+            document.querySelector('#homeImg').style.opacity = "1";
+            document.querySelector('.userName').style.opacity = "1";
+            document.querySelector('#container').style.backgroundImage = '';
+        }
+        //valid level up
+        levelCount = 1;
+        ValidLevelUp = () => {
+            if (cont > 20) {
+                levelCount++;
+                document.querySelector('#userLevel').innerText = levelCount;
+                dowTimer(countFly());
+                removeFlyAll();
+                document.querySelector('#container').style.backgroundImage = "url('img/level-up.png')";
+                document.querySelector('#container').style.backgroundColor = 'red';
+                console.log('passou de fase')
+                timeRun = timeRun - 50;
+                timerContrl = timerContrl - 100;
+                cont = 0;
+                paused = true;
+                setTimeout(() => {
+                    backgroundImplement();
+                    document.querySelector('#container').style.backgroundColor = 'white';
+                    paused = false;
+                    timer();
+                }, 4000);
+            }
+        }
+        upRecords = (a, b) => {
+            saveUserRecords();
+            e = document.querySelectorAll('#records span');
+            if (b > parseInt(e[0].textContent)) {
+                document.querySelectorAll('#records span')[0].textContent = b;
+            }
+            if (a > parseInt(e[1].textContent)) {
+                document.querySelectorAll('#records span')[1].textContent = a;
+            }
+        }
+        saveUserRecords = () => {
+            localStorage.setItem('name', document.querySelector('.userName').value);
+            localStorage.setItem('level', document.querySelectorAll('#records span')[0].textContent);
+            localStorage.setItem('points', document.querySelectorAll('#records span')[1].textContent);
+        }
+        getUserInfos = () => {
+            a = localStorage.getItem('name');
+            if (a != null) {
+                document.querySelector('.userName').value = a;
+            }
+            b = localStorage.getItem('level');
+            if (b != null) {
+                document.querySelectorAll('#records span')[0].textContent = b;
+            }
+            c = localStorage.getItem('points');
+            if (c != null) {
+                document.querySelectorAll('#records span')[1].textContent = c;
+            }
+        }
+        getUserInfos();
+
+    </script>
+</footer>
+
+</html>
